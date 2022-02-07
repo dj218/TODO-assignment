@@ -156,15 +156,20 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li style="align-content:center">
-            <button type="submit" class="btn btn-danger" onclick="logout()">Logout</button>
+          <button type="submit" class="btn btn-danger" onclick="logout()">Logout</button>
         </li>
-    </ul>
+      </ul>
     </div>
   </nav>
 
   <div class="container">
     <div class="app">
       <h1>To DO List</h1>
+      <form>
+        <input type="text" id="taskID" placeholder="Add new task...">
+        <input type="date" id="dateID">
+        <button type="submit" onclick="addTask(this);return false">&plus;</button>
+      </form>
       <ul id="UID">
       </ul>
     </div>
@@ -180,7 +185,7 @@
     else
       var arr = personwewant.todolist;
 
-    arr.sort((a,b) => new Date(a.Date) - new Date(b.Date));
+    arr.sort((a, b) => new Date(a.Date) - new Date(b.Date));
     console.log(arr);
 
     window.onload = loadTasks;                        // LOAD TASK
@@ -235,7 +240,7 @@
     }
 
 
-// EDIT DATE
+    // EDIT DATE
     var currentDate = null;
 
     function getCurrentDate(event) {
@@ -267,6 +272,61 @@
       personwewant.todolist = tasks;
       sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
       sessionStorage.setItem(email, JSON.stringify(personwewant));
+    }
+
+    function addTask() {                                              // add a new task
+      const task = document.querySelector("#taskID");
+      const dtask = document.querySelector("#dateID");
+      const list = document.querySelector("#UID");
+      // return if task is empty
+      if (task.value === "" && dtask.value === "") {
+        alert("Please add some task along with completion date!");
+        return false;
+      }
+      // check is task already exist
+      let tasks = personwewant.todolist;
+      // task already exist
+      tasks.forEach(todo => {
+        if (todo.Title === task.value && todo.Date === dtask.value) {
+          alert("Task already exist!");
+          task.value = "";
+          dtask.value = "";
+          return;
+        }
+      });
+
+      // add task to local storage
+      var finaltodo = personwewant.Email;
+      const obj = { Title: task.value, Category: "Work", Date: dtask.value, Rdate: dtask.value, Ipublic: "true", IsComplete: "false" };
+
+      let result = "todolist" in personwewant;
+
+
+      if (result == false) {
+        const arr = new Array();
+        arr.push(obj);
+        personwewant.todolist = arr;
+      }
+      else {
+        const arr = personwewant.todolist;
+        arr.push(obj);
+        personwewant.todolist = arr;
+      }
+
+
+      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      sessionStorage.setItem(finaltodo, JSON.stringify(personwewant));
+
+      // create list item, add innerHTML and append to ul
+      const li = document.createElement("li");
+      li.innerHTML = `<input type="checkbox" onclick="taskComplete(this)" class="check">
+          <input type="text" value="${task.value}" class="task" onfocus="getCurrentTask(this)" onblur="editTask(this)">
+          <input type="date" value="${dtask.value}" class="task" onfocus="getCurrentDate(this)" onblur="editDate(this)">
+          <i class="fa fa-trash-o" onclick="removeTask(this)"></i>`;
+      list.insertBefore(li, list.children[0]);
+      // clear input
+      task.value = "";
+      dtask.value = "";
     }
 
 
@@ -304,10 +364,10 @@
     }
 
     function logout() {
-            alert("Thanks for using our website");
-            sessionStorage.removeItem("CurrentLoggedInPerson");
-            window.location.href = "./register.html";
-        }
+      alert("Thanks for using our website");
+      sessionStorage.removeItem("CurrentLoggedInPerson");
+      window.location.href = "./register.html";
+    }
 
   </script>
 
