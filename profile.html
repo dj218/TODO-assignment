@@ -76,6 +76,12 @@
                         <div class="col-md-12"><label class="labels">Gender</label><input id="tg" type="text"
                                 class="form-control" placeholder="gender" value=""></div>
                     </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6"><label class="labels">Password</label><input id="tp" type="password"
+                                class="form-control" placeholder="password" value=""></div>
+                        <div class="col-md-6"><label class="labels">Confirm Password</label><input id="tc"
+                                type="password" class="form-control" value="" placeholder="confirm password"></div>
+                    </div>
                     <div class="mt-5 text-center"><button class="btn btn-primary profile-button" type="button"
                             onclick="resetthevalues()">Save Profile</button></div>
                 </div>
@@ -92,7 +98,14 @@
                     <h2 class="text-right">My To Do List</h2>
                     <form>
                         <input id="myInput" type="text" class="form-control" placeholder="Title..." required>
-                        <input type="text" class="form-control" id="myCategory" placeholder="Category" required>
+                        <!-- <input type="text" class="form-control" id="myCategory" placeholder="Category" required> -->
+                        <label for="membership">Category</label>
+                        <select name="membership" class="form-control" id="myCategory">
+                            <option value="Important">Important</option>
+                            <option value="Extracurricular">Extracurricular</option>
+                            <option value="Work" selected>Work</option>
+                            <option value="Personal">Personal</option>
+                        </select>
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label>Date</label>
@@ -122,8 +135,10 @@
 
     <script>
         const personwewant = JSON.parse(sessionStorage.getItem("CurrentLoggedInPerson"));
-        if (personwewant == null)
+        if (personwewant == null) {
+            window.location.href = "./register.html";
             alert("Please first login into our website to create your own ToDOList");
+        }
         document.getElementById("myspan").textContent = personwewant.firstName;
         document.getElementById("myspan2").textContent = personwewant.Email;
         window.addEventListener('DOMContentLoaded', () => {
@@ -153,6 +168,8 @@
         tl.value = personwewant.lastName;
         ta.value = personwewant.Address;
         tg.value = personwewant.Gender;
+        tp.value = personwewant.Password;
+        tc.value = personwewant.Password;
 
         function newElement() {
             event.preventDefault();
@@ -163,29 +180,72 @@
             var rdate = document.getElementById("ReminderDate").value;
             var ipublic = $("#inputPublic").is(":checked") ? "true" : "false";
 
-            var finaltodo = personwewant.Email;
-            const obj = { Title: title, Category: category, Date: date, Rdate: rdate, Ipublic: ipublic ,IsComplete: "false" };
+            if (formValidation(title,category,date,rdate)) {
 
-            let result = "todolist" in personwewant;
+                var finaltodo = personwewant.Email;
+                const obj = { Title: title, Category: category, Date: date, Rdate: rdate, Ipublic: ipublic, IsComplete: "false" };
+
+                let result = "todolist" in personwewant;
 
 
-            if (result == false) {
-                const arr = new Array();
-                arr.push(obj);
-                personwewant.todolist = arr;
+                if (result == false) {
+                    const arr = new Array();
+                    arr.push(obj);
+                    personwewant.todolist = arr;
+                }
+                else {
+                    const arr = personwewant.todolist;
+                    arr.push(obj);
+                    personwewant.todolist = arr;
+                }
+
+
+                sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+                sessionStorage.setItem(finaltodo, JSON.stringify(personwewant));
+                const x = JSON.parse(sessionStorage.getItem(finaltodo));
+                window.location.href = "./todolist.html";
             }
-            else {
-                const arr = personwewant.todolist;
-                arr.push(obj);
-                personwewant.todolist = arr;
+            return false;
+        }
+
+        function formValidation(title,category,date,rdate){
+            var l1=title.length;
+            if(l1==0)
+            {
+                alert("Title is not there");
+                return false;
             }
 
+            var l2=category.length;
+            if(l2==0)
+            {
+                alert("Category is not there");
+                return false;
+            }
 
-            sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-            sessionStorage.setItem(finaltodo, JSON.stringify(personwewant));
-            const x = JSON.parse(sessionStorage.getItem(finaltodo));
+            var l3=date.length;
+            if(l3==0)
+            {
+                alert("Completion Date is not there");
+                return false;
+            }
 
-            window.location.href = "./todolist.html";
+            var l4=rdate.length;
+            if(l4==0)
+            {
+                alert("Reminder Date is not there");
+                return false;
+            }
+
+            var d1 = new Date(date);
+            var d2 = new Date(rdate);
+            if(d1 < d2)
+            {
+                alert("Reminder date is greater than Completion Date .... it should be less than Completion Date");
+                return false;
+            }
+
+            return true;
         }
 
         function resetthevalues() {
@@ -196,11 +256,19 @@
             var lastname = document.getElementById("tl").value;
             var gender = document.getElementById("tg").value;
             var address = document.getElementById("ta").value;
+            var password = document.getElementById("tp").value;
+            var confirmpassword = document.getElementById("tc").value;
 
-            personwewant.firstName = firstname;
-            personwewant.lastName = lastname;
-            personwewant.Gender = gender;
-            personwewant.Address = address;
+            if (password == confirmpassword) {
+                personwewant.firstName = firstname;
+                personwewant.lastName = lastname;
+                personwewant.Gender = gender;
+                personwewant.Address = address;
+                personwewant.Password = password;
+            }
+            else {
+                alert("password and confirmpassword do not match");
+            }
 
             var email = personwewant.Email;
             sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
@@ -208,7 +276,7 @@
 
             document.getElementById("myspan").textContent = personwewant.firstName;
             document.getElementById("myspan2").textContent = personwewant.Email;
-
+            console.log(personwewant);
         }
         function logout() {
             alert("Thanks for using our website");

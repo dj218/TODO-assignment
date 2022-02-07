@@ -162,7 +162,15 @@
                     <input id="re" type="email" placeholder="Email" required />
                     <input id="rf" type="text" placeholder="FirstName" required />
                     <input id="rl" type="text" placeholder="LastName" required />
-                    <input id="rg" type="text" placeholder="Gender" required />
+                    <label class="labels">Gender</label><br>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="Gender" id="rgm" value="Male">
+                        <label class="form-check-label" for="rgm">Male</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="Gender" id="rgf" value="Female">
+                        <label class="form-check-label" for="rgf">Female</label>
+                    </div>
                     <input id="ra" type="text" placeholder="Address" required />
                     <input id="rp" type="password" placeholder="Password" required />
                     <input id="rrp" type="password" placeholder="Re write Password" required />
@@ -233,10 +241,18 @@
             var email = document.getElementById("re").value;
             var firstname = document.getElementById("rf").value;
             var lastname = document.getElementById("rl").value;
-            var gender = document.getElementById("rg").value;
             var address = document.getElementById("ra").value;
             var password = document.getElementById("rp").value;
             var passwordRetype = document.getElementById("rrp").value;
+
+            var getSelectedValue = document.querySelector('input[name="Gender"]:checked');
+            if (getSelectedValue != null) {
+                var gender = getSelectedValue.value;
+            }
+            else {
+                alert("Plese select a gender first");
+            }
+
             const person = { Email: email, firstName: firstname, lastName: lastname, Gender: gender, Address: address, Password: password };
 
             document.querySelector("#rd").addEventListener("change", function () {
@@ -260,7 +276,7 @@
                         if (genderValidation(gender)) {
                             if (sessionStorage.getItem(email) == null) {
                                 sessionStorage.setItem(email, JSON.stringify(person));
-                                // window.location.reload()
+                                window.location.reload()
                                 alert(email + "  Thanks for registration. \nTry to login Now");
                             }
                             else {
@@ -373,6 +389,14 @@
             alert("email is send to your email check it in 24hr. \n Thanks");
             document.getElementById("fe").value = "";
         }
+
+        // function loadprofile() {
+        //     const personwewant = JSON.parse(sessionStorage.getItem("CurrentLoggedInPerson"));
+        //     if (personwewant == null) {
+        //         alert("Please first login into our website to create your own ToDOList");
+        //     }
+        // }
+
 
     </script>
 </body>
