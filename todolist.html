@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+
+  <title>Todo List</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500&display=swap");
+
+    * {
+      margin: 0
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+      background-color: #e1e3ea;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+
+    .app {
+      width: 60%;
+    }
+
+    @media (max-width:768px) {
+      .app {
+        width: 90%;
+      }
+    }
+
+    .app h1 {
+      color: white;
+      font-size: 40px;
+      padding: 10px 0;
+      text-align: center;
+      border-radius: .5rem .5rem 0 0;
+      background-color: rgb(96, 152, 224);
+      font-family: "Rajdhani", sans-serif;
+    }
+
+    .app form {
+      display: flex;
+      width: 100%;
+      background-color: #262e4c;
+    }
+
+    .app form input {
+      border: none;
+      background-color: #3c4979;
+      font-size: 18px;
+      color: white;
+      padding: 10px;
+      width: 90%;
+    }
+
+    .app form button {
+      border: none;
+      color: white;
+      background-color: #1dd2af;
+      font-size: 25px;
+      font-weight: 600;
+      height: 42px;
+      width: 10%;
+    }
+
+    .app ul {
+      list-style: none;
+      color: #e0e0e0;
+      padding: 0;
+    }
+
+    .app ul li {
+      padding: 10px;
+      background-color: #262e4c;
+      border-bottom: 1px solid #3a4674;
+    }
+
+    .check {
+      width: 0.8em;
+      height: 0.8em;
+      cursor: pointer;
+      border-radius: 50%;
+      background-color: white;
+      border: 1px solid rgb(255, 255, 255);
+      -webkit-appearance: none;
+    }
+
+    .check:checked {
+      background-color: #1dd2af;
+    }
+
+    .Title {
+      font-size: 18px;
+      padding: 0 10px;
+      width: fit-content;
+      background: transparent;
+      border: none;
+      color: #fff;
+    }
+
+    .task:focus {
+      outline: none;
+    }
+
+    .app ul li i {
+      float: right;
+      cursor: pointer;
+    }
+
+    .app ul li i:hover {
+      color: rgb(197, 77, 68);
+    }
+
+    .completed {
+      color: rgba(192, 192, 192, 0.842);
+      text-decoration: line-through;
+
+    }
+  </style>
+</head>
+
+<body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Todo App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="./index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./register.html">Register</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./profile.html">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">ToDoList</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li style="align-content:center">
+            <button type="submit" class="btn btn-danger" onclick="logout()">Logout</button>
+        </li>
+    </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="app">
+      <h1>To DO List</h1>
+      <ul id="UID">
+      </ul>
+    </div>
+  </div>
+
+
+  <script>
+    const personwewant = JSON.parse(sessionStorage.getItem("CurrentLoggedInPerson"));
+    let result = "todolist" in personwewant;
+    if (result == false) {
+      alert("First Enter any todo item in profile page.... Thanks");
+    }
+    else
+      var arr = personwewant.todolist;
+
+    arr.sort((a,b) => new Date(a.Date) - new Date(b.Date));
+    console.log(arr);
+
+    window.onload = loadTasks;                        // LOAD TASK
+
+    function loadTasks() {
+      let tasks = personwewant.todolist;
+      //console.log(tasks);
+
+      tasks.forEach(task => {
+        //console.log(task);
+        const list = document.querySelector('#UID');
+        const li = document.createElement('li');
+        li.innerHTML = `<input type="checkbox" onclick="taskComplete(this)" class="check" ${task.completed ? 'checked' : ''}>
+          <input type="text" value="${task.Title}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
+          <input type="date" value="${task.Date}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentDate(this)" onblur="editDate(this)">
+          <i class="fa fa-trash-o" onclick="removeTask(this)"></i>`;
+        list.insertBefore(li, list.children[0]);
+      });
+    }
+    //   EDIT TASK
+    var currentTask = null;
+
+    function getCurrentTask(event) {
+      currentTask = event.parentNode.children[1].value;
+    }
+
+    function editTask(event) {
+      let tasks = personwewant.todolist;
+      var email = personwewant.Email;
+      if (event.value === "") {
+        alert("Task is empty!");
+        event.parentNode.children[1].value = currentTask;
+        return;
+      }
+
+      tasks.forEach(task => {
+        if (task.Title === event.parentNode.children[1].value) {
+          alert("Task already exist!");
+          event.parentNode.children[1].value = currentTask;
+          return;
+        }
+      });
+
+      tasks.forEach(task => {
+        if (task.Title === currentTask) {
+          task.Title = event.parentNode.children[1].value;
+        }
+      });
+      personwewant.todolist = tasks;
+      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      sessionStorage.setItem(email, JSON.stringify(personwewant));
+    }
+
+
+// EDIT DATE
+    var currentDate = null;
+
+    function getCurrentDate(event) {
+      currentDate = event.parentNode.children[2].value;
+    }
+
+    function editDate(event) {
+      let tasks = personwewant.todolist;
+      var email = personwewant.Email;
+      if (event.value === "") {
+        alert("Task is empty!");
+        event.parentNode.children[2].value = currentDate;
+        return;
+      }
+
+      tasks.forEach(task => {
+        if (task.Date === event.parentNode.children[2].value) {
+          alert("This Date already exist!");
+          event.parentNode.children[2].value = currentDate;
+          return;
+        }
+      });
+
+      tasks.forEach(task => {
+        if (task.Date === currentDate) {
+          task.Date = event.parentNode.children[2].value;
+        }
+      });
+      personwewant.todolist = tasks;
+      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      sessionStorage.setItem(email, JSON.stringify(personwewant));
+    }
+
+
+    function taskComplete(event) {                                         // mark the complete task
+      let tasks = personwewant.todolist;
+      var email = personwewant.Email;
+      tasks.forEach(task => {
+        if (task.Title === event.nextElementSibling.value) {
+          task.completed = !task.completed;
+          task.IsComplete = "true";
+        }
+      });
+      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      sessionStorage.setItem(email, JSON.stringify(personwewant));
+      event.nextElementSibling.classList.toggle("completed");
+    }
+
+    function removeTask(event) {
+      //delete the complete task
+      let arr = personwewant.todolist;
+      var attr = "Title";
+      var email = personwewant.Email;
+      var i = arr.length;
+      while (i--) {
+        if (arr[i]
+          && arr[i].hasOwnProperty(attr)
+          && (arr[i][attr] === event.parentNode.children[1].value)) {
+          arr.splice(i, 1);
+        }
+      }
+      personwewant.todolist = arr;
+      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      sessionStorage.setItem(email, JSON.stringify(personwewant));
+      event.parentElement.remove();
+    }
+
+    function logout() {
+            alert("Thanks for using our website");
+            sessionStorage.removeItem("CurrentLoggedInPerson");
+            window.location.href = "./register.html";
+        }
+
+  </script>
+
+</body>
+
+</html>
