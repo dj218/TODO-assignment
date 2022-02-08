@@ -185,7 +185,7 @@
     else
       var arr = personwewant.todolist;
 
-    arr.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+    arr.sort((a, b) => Date(b.Date) - new Date(a.Date));
     console.log(arr);
 
     window.onload = loadTasks;                        // LOAD TASK
@@ -200,72 +200,44 @@
         const li = document.createElement('li');
         li.innerHTML = `<input type="checkbox" onclick="taskComplete(this)" class="check" ${task.completed ? 'checked' : ''}>
           <input type="text" value="${task.Title}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
-          <input type="date" value="${task.Date}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentDate(this)" onblur="editDate(this)">
+          <input type="date" value="${task.Date}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <i class="fa fa-trash-o" onclick="removeTask(this)"></i>`;
         list.insertBefore(li, list.children[0]);
       });
     }
     //   EDIT TASK
     var currentTask = null;
+    var currentDate = null;
 
     function getCurrentTask(event) {
       currentTask = event.parentNode.children[1].value;
+      currentDate = event.parentNode.children[2].value;
     }
-
+    console.log(currentDate);
+    console.log(currentTask);
     function editTask(event) {
       let tasks = personwewant.todolist;
       var email = personwewant.Email;
-      if (event.value === "") {
-        alert("Task is empty!");
+      if (event.parentNode.children[1].value === "" || event.parentNode.children[2].value === "") {
+
+        alert("Task or the completion date is empty!");
         event.parentNode.children[1].value = currentTask;
-        return;
-      }
-
-      tasks.forEach(task => {
-        if (task.Title === event.parentNode.children[1].value) {
-          alert("Task already exist!");
-          event.parentNode.children[1].value = currentTask;
-          return;
-        }
-      });
-
-      tasks.forEach(task => {
-        if (task.Title === currentTask) {
-          task.Title = event.parentNode.children[1].value;
-        }
-      });
-      personwewant.todolist = tasks;
-      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-      sessionStorage.setItem(email, JSON.stringify(personwewant));
-    }
-
-
-    // EDIT DATE
-    var currentDate = null;
-
-    function getCurrentDate(event) {
-      currentDate = event.parentNode.children[2].value;
-    }
-
-    function editDate(event) {
-      let tasks = personwewant.todolist;
-      var email = personwewant.Email;
-      if (event.value === "") {
-        alert("Task is empty!");
         event.parentNode.children[2].value = currentDate;
         return;
       }
 
       tasks.forEach(task => {
-        if (task.Date === event.parentNode.children[2].value) {
-          alert("This Date already exist!");
+        if (task.Title === event.parentNode.children[1].value && task.Date === event.parentNode.children[2].value) {
+          alert("Task with the same completion date already exist!");
+          event.parentNode.children[1].value = currentTask;
           event.parentNode.children[2].value = currentDate;
           return;
         }
       });
 
       tasks.forEach(task => {
-        if (task.Date === currentDate) {
+        if (task.Title === currentTask && task.Date === currentDate) {
+          task.Title = event.parentNode.children[1].value;
           task.Date = event.parentNode.children[2].value;
         }
       });
@@ -274,12 +246,13 @@
       sessionStorage.setItem(email, JSON.stringify(personwewant));
     }
 
+
     function addTask() {                                              // add a new task
       const task = document.querySelector("#taskID");
       const dtask = document.querySelector("#dateID");
       const list = document.querySelector("#UID");
       // return if task is empty
-      if (task.value === "" && dtask.value === "") {
+      if (task.value === "" || dtask.value === "") {
         alert("Please add some task along with completion date!");
         return false;
       }
@@ -295,6 +268,9 @@
         }
       });
 
+      if (task.value === "" || dtask.value === "") {
+        return false;
+      }
       // add task to local storage
       var finaltodo = personwewant.Email;
       const obj = { Title: task.value, Category: "Work", Date: dtask.value, Rdate: dtask.value, Ipublic: "true", IsComplete: "false" };
@@ -334,7 +310,7 @@
       let tasks = personwewant.todolist;
       var email = personwewant.Email;
       tasks.forEach(task => {
-        if (task.Title === event.nextElementSibling.value) {
+        if (task.Title === event.parentNode.children[1].value && task.Date === event.parentNode.children[2].value) {
           task.completed = !task.completed;
           task.IsComplete = "true";
         }
@@ -348,12 +324,13 @@
       //delete the complete task
       let arr = personwewant.todolist;
       var attr = "Title";
+      var attr2 = "Date";
       var email = personwewant.Email;
       var i = arr.length;
       while (i--) {
         if (arr[i]
-          && arr[i].hasOwnProperty(attr)
-          && (arr[i][attr] === event.parentNode.children[1].value)) {
+          && arr[i].hasOwnProperty(attr) && arr[i].hasOwnProperty(attr2)
+          && (arr[i][attr] === event.parentNode.children[1].value && arr[i][attr2] === event.parentNode.children[2].value)) {
           arr.splice(i, 1);
         }
       }

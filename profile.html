@@ -195,6 +195,14 @@
                 }
                 else {
                     const arr = personwewant.todolist;
+                    var i = arr.length;
+                    while (i--) {
+                        if (arr[i] && JSON.stringify(arr[i]) === JSON.stringify(obj))
+                        {
+                            alert("This Item already exist in TODO list");
+                            return false;
+                        }
+                    }
                     arr.push(obj);
                     personwewant.todolist = arr;
                 }
