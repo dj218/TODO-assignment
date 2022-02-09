@@ -63,15 +63,42 @@
       padding: 10px;
       width: 90%;
     }
+    .app form select {
+      border: none;
+      background-color: #3c4979;
+      font-size: 18px;
+      color: white;
+      padding: 10px;
+      width: 90%;
+    }
 
     .app form button {
       border: none;
       color: white;
       background-color: #1dd2af;
-      font-size: 25px;
+      font-size: 15px;
+      font-weight: 600;
+      height: 47px;
+      width: 10%;
+    }
+
+    .app form label {
+      border: none;
+      color: white;
+      background-color: #3c4979;
+      font-size: 15px;
       font-weight: 600;
       height: 42px;
       width: 10%;
+    }
+
+    .app form select option {
+      border: none;
+      background-color: #3c4979;
+      font-size: 18px;
+      color: white;
+      padding: 10px;
+      width: 90%;
     }
 
     .app ul {
@@ -127,6 +154,14 @@
       text-decoration: line-through;
 
     }
+
+    #dateDIV {
+      display: none;
+    }
+
+    #categoryDIV{
+      display: none;
+    }
   </style>
 </head>
 
@@ -141,11 +176,8 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="./index.html">Home</a>
-        </li>
         <li class="nav-item">
-          <a class="nav-link" href="./register.html">Register</a>
+          <a class="nav-link" href="#" onclick="loggedIN()">Register</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="./profile.html">Profile</a>
@@ -166,18 +198,53 @@
     <div class="app">
       <h1>To DO List</h1>
       <form>
-        <input type="text" id="taskID" placeholder="Add new task...">
+        <input type="text" id="taskID" placeholder="Add task">
+        <select name="membership" class="form-control" id="categoryID">
+          <option value="Important">Important</option>
+          <option value="Extracurricular">Extracurricular</option>
+          <option value="Work" selected>Work</option>
+          <option value="Personal">Personal</option>
+      </select>
         <input type="date" id="dateID">
         <button type="submit" onclick="addTask(this);return false">&plus;</button>
+        
       </form>
+      <div id="ediv"></div>
+        <label for="membership">Choose Filter</label>
+        <select name="membership" id="FilterID">
+          <option value="date">Date Range</option>
+          <option value="category">Category</option>
+          <option value="uncompleted">IsPending</option>
+          <option value="completed">IsDone</option>
+        </select>
+      <button type="submit" onclick="filterlist()" >Apply</button>
+      <div id="dateDIV">
+        <label >Start Date</label><input type="date" id="startDate"/>
+        <label >End Date</label><input type="date" id="endDate"/>
+        <button type="submit" onclick="daterange()">Filter</button>
+      </div>
+      <div id="categoryDIV">
+        <select name="membership" class="form-control" id="categoryfID">
+          <option value="Important">Important</option>
+          <option value="Extracurricular">Extracurricular</option>
+          <option value="Work" selected>Work</option>
+          <option value="Personal">Personal</option>
+        </select>
+        <button type="submit" onclick="categoryfun()">Filter</button>
+      </div>
+      <div id="ddiv">
+        <label for="membershipd">Select multiple items to delete them and press this button</label>
+        <button name="membershipd" type="submit" onclick="removemultiTask()">Delete</button>
+      </div>
       <ul id="UID">
       </ul>
+      <div id="ErrorID"></div>
     </div>
   </div>
 
 
   <script>
-    const personwewant = JSON.parse(sessionStorage.getItem("CurrentLoggedInPerson"));
+    const personwewant = JSON.parse(localStorage.getItem("CurrentLoggedInPerson"));
     let result = "todolist" in personwewant;
     if (result == false) {
       alert("First Enter any todo item in profile page.... Thanks");
@@ -185,21 +252,25 @@
     else
       var arr = personwewant.todolist;
 
+    window.addEventListener('DOMContentLoaded', () => {
+            const recentImageDataUrl = personwewant.pict;
+            console.log(recentImageDataUrl);
+    })
+
     arr.sort((a, b) => Date(b.Date) - new Date(a.Date));
-    console.log(arr);
 
     window.onload = loadTasks;                        // LOAD TASK
 
     function loadTasks() {
       let tasks = personwewant.todolist;
-      //console.log(tasks);
 
       tasks.forEach(task => {
-        //console.log(task);
         const list = document.querySelector('#UID');
         const li = document.createElement('li');
-        li.innerHTML = `<input type="checkbox" onclick="taskComplete(this)" class="check" ${task.completed ? 'checked' : ''}>
+        li.innerHTML = `<input type="checkbox" onclick="takeThisTask(this)" class="checks">
+          <input type="checkbox" name="todo" onclick="taskComplete(this)" class="check" ${task.completed ? 'checked' : ''}>
           <input type="text" value="${task.Title}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
+          <input type="text" value="${task.Category}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <input type="date" value="${task.Date}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <i class="fa fa-trash-o" onclick="removeTask(this)"></i>`;
         list.insertBefore(li, list.children[0]);
@@ -207,73 +278,81 @@
     }
     //   EDIT TASK
     var currentTask = null;
+    var currentCategory = null;
     var currentDate = null;
 
     function getCurrentTask(event) {
-      currentTask = event.parentNode.children[1].value;
-      currentDate = event.parentNode.children[2].value;
+      currentTask = event.parentNode.children[2].value;
+      currentCategory = event.parentNode.children[3].value;
+      currentDate = event.parentNode.children[4].value;
     }
-    console.log(currentDate);
-    console.log(currentTask);
     function editTask(event) {
       let tasks = personwewant.todolist;
       var email = personwewant.Email;
-      if (event.parentNode.children[1].value === "" || event.parentNode.children[2].value === "") {
+      if (event.parentNode.children[2].value === "" || event.parentNode.children[3].value === "" || event.parentNode.children[4].value === "") {
 
-        alert("Task or the completion date is empty!");
-        event.parentNode.children[1].value = currentTask;
-        event.parentNode.children[2].value = currentDate;
+        document.getElementById('ErrorID').innerHTML="Please enter valid Values";
+        event.parentNode.children[2].value = currentTask;
+        event.parentNode.children[3].value = currentCategory;
+        event.parentNode.children[4].value = currentDate;
         return;
       }
 
       tasks.forEach(task => {
-        if (task.Title === event.parentNode.children[1].value && task.Date === event.parentNode.children[2].value) {
+        if (task.Title === event.parentNode.children[2].value && task.Category === event.parentNode.children[3].value && task.Date === event.parentNode.children[4].value) {
           alert("Task with the same completion date already exist!");
-          event.parentNode.children[1].value = currentTask;
-          event.parentNode.children[2].value = currentDate;
+          event.parentNode.children[2].value = currentTask;
+          event.parentNode.children[3].value = currentCategory;
+          event.parentNode.children[4].value = currentDate;
           return;
         }
       });
 
       tasks.forEach(task => {
-        if (task.Title === currentTask && task.Date === currentDate) {
-          task.Title = event.parentNode.children[1].value;
-          task.Date = event.parentNode.children[2].value;
+        if (task.Title === currentTask && task.Category === currentCategory && task.Date === currentDate) {
+          task.Title = event.parentNode.children[2].value;
+          task.Category = event.parentNode.children[3].value;
+          task.Date = event.parentNode.children[4].value;
         }
       });
       personwewant.todolist = tasks;
-      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-      sessionStorage.setItem(email, JSON.stringify(personwewant));
+      localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      localStorage.setItem(email, JSON.stringify(personwewant));
     }
 
 
     function addTask() {                                              // add a new task
       const task = document.querySelector("#taskID");
+      const ctask = document.querySelector("#categoryID");
       const dtask = document.querySelector("#dateID");
       const list = document.querySelector("#UID");
       // return if task is empty
-      if (task.value === "" || dtask.value === "") {
-        alert("Please add some task along with completion date!");
+      if (task.value === "" || dtask.value === "" || ctask.value=="") {
+        document.getElementById('ediv').innerHTML = "*Please enter a task along with category and completion date*";
         return false;
+      }
+      else{
+        document.getElementById('ediv').innerHTML = "";
       }
       // check is task already exist
       let tasks = personwewant.todolist;
       // task already exist
       tasks.forEach(todo => {
-        if (todo.Title === task.value && todo.Date === dtask.value) {
+        if (todo.Title === task.value && todo.Date === dtask.value && todo.Category===ctask.value) {
           alert("Task already exist!");
           task.value = "";
           dtask.value = "";
+          ctask.value="";
           return;
         }
       });
 
-      if (task.value === "" || dtask.value === "") {
+      if (task.value === "" || dtask.value === "" || ctask.value==="") {
         return false;
       }
       // add task to local storage
       var finaltodo = personwewant.Email;
-      const obj = { Title: task.value, Category: "Work", Date: dtask.value, Rdate: dtask.value, Ipublic: "true", IsComplete: "false" };
+      const obj = { Title: task.value, Category: ctask.value , Date: dtask.value, Rdate: dtask.value, Ipublic: "true", IsComplete: "false" };
 
       let result = "todolist" in personwewant;
 
@@ -290,62 +369,253 @@
       }
 
 
-      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-      sessionStorage.setItem(finaltodo, JSON.stringify(personwewant));
+      localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      localStorage.setItem(finaltodo, JSON.stringify(personwewant));
 
       // create list item, add innerHTML and append to ul
       const li = document.createElement("li");
-      li.innerHTML = `<input type="checkbox" onclick="taskComplete(this)" class="check">
+      li.innerHTML = `<input type="checkbox" onchange=="takeThisTask(this)" class="checks">
+          <input type="checkbox" name="todo" onclick="taskComplete(this)" class="check">
           <input type="text" value="${task.value}" class="task" onfocus="getCurrentTask(this)" onblur="editTask(this)">
+          <input type="text" value="${ctask.value}" class="task" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <input type="date" value="${dtask.value}" class="task" onfocus="getCurrentDate(this)" onblur="editDate(this)">
           <i class="fa fa-trash-o" onclick="removeTask(this)"></i>`;
       list.insertBefore(li, list.children[0]);
       // clear input
       task.value = "";
       dtask.value = "";
+      ctask.value="Work";
     }
-
 
     function taskComplete(event) {                                         // mark the complete task
       let tasks = personwewant.todolist;
       var email = personwewant.Email;
+      
       tasks.forEach(task => {
-        if (task.Title === event.parentNode.children[1].value && task.Date === event.parentNode.children[2].value) {
+        if (task.Title === event.parentNode.children[2].value && task.Category === event.parentNode.children[3].value && task.Date === event.parentNode.children[4].value) {
           task.completed = !task.completed;
           task.IsComplete = "true";
         }
       });
-      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-      sessionStorage.setItem(email, JSON.stringify(personwewant));
+      localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      localStorage.setItem(email, JSON.stringify(personwewant));
       event.nextElementSibling.classList.toggle("completed");
+      event.nextElementSibling.nextElementSibling.classList.toggle("completed");
+      event.nextElementSibling.nextElementSibling.nextElementSibling.classList.toggle("completed");
+
+    }
+
+    const darray = new Array();
+    function takeThisTask(event)
+    {
+      let arr = personwewant.todolist;
+        var email = personwewant.Email;
+        var attr = "Title";
+        var attr2 = "Category";
+        var attr3 = "Date";
+        var i = arr.length;
+        var index;
+        while(i--)
+        {
+                if(arr[i]
+          && arr[i].hasOwnProperty(attr) && arr[i].hasOwnProperty(attr2) && (event.parentNode.children[2].value === arr[i][attr] && event.parentNode.children[3].value === arr[i][attr2] && event.parentNode.children[4].value === arr[i][attr3]))
+                {
+                  index=i;
+                }
+              }
+        const obj=arr[index];
+        if(event.checked)
+        {
+          arr.splice(index,1);
+          darray.push(event.parentElement);
+        }
+        else{
+          arr.push(obj);
+          var dindex=darray.indexOf(event.parentElement);
+          darray.splice(dindex,1);
+        }
+             
+      personwewant.todolist = arr;
+      localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      localStorage.setItem(email, JSON.stringify(personwewant));
     }
 
     function removeTask(event) {
-      //delete the complete task
       let arr = personwewant.todolist;
       var attr = "Title";
-      var attr2 = "Date";
+        var attr2 = "Category";
+        var attr3 = "Date";
       var email = personwewant.Email;
       var i = arr.length;
       while (i--) {
         if (arr[i]
           && arr[i].hasOwnProperty(attr) && arr[i].hasOwnProperty(attr2)
-          && (arr[i][attr] === event.parentNode.children[1].value && arr[i][attr2] === event.parentNode.children[2].value)) {
+          && (event.parentNode.children[2].value === arr[i][attr] && event.parentNode.children[3].value === arr[i][attr2] && event.parentNode.children[4].value === arr[i][attr3])) {
           arr.splice(i, 1);
         }
       }
       personwewant.todolist = arr;
-      sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-      sessionStorage.setItem(email, JSON.stringify(personwewant));
+      localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+      localStorage.setItem(email, JSON.stringify(personwewant));
       event.parentElement.remove();
+    }
+
+    function removemultiTask() {
+          darray.forEach(task => {
+                  task.remove();
+                });
     }
 
     function logout() {
       alert("Thanks for using our website");
-      sessionStorage.removeItem("CurrentLoggedInPerson");
+      localStorage.removeItem("CurrentLoggedInPerson");
       window.location.href = "./register.html";
     }
 
+
+
+    function filterlist() {
+      var filter = document.getElementById("FilterID").value;
+      console.log(filter);
+      switch (filter) {
+        case "date":
+          toggledate();
+          break;
+
+        case "category":
+          togglecategory();
+          break;
+
+        case "completed":
+          checkallcompleteditem();
+          break;
+
+        case "uncompleted":
+        checkalluncompleteditem();
+          break;
+      }
+      return false;
+    }
+
+    function toggledate() {
+      var myDiv = document.getElementById('dateDIV');
+      var displaySetting = myDiv.style.display;
+
+      if (displaySetting == 'block') {
+        myDiv.style.display = 'none';
+      }
+      else {
+        myDiv.style.display = 'block';
+      }
+    }
+
+    function togglecategory() {
+      var myDiv = document.getElementById('categoryDIV');
+      var displaySetting = myDiv.style.display;
+
+      if (displaySetting == 'block') {
+        myDiv.style.display = 'none';
+      }
+      else {
+        myDiv.style.display = 'block';
+      }
+    }
+    
+    function checkallcompleteditem()
+    {
+      const todoUL = document.getElementById('UID');
+      const todos = todoUL.childNodes;
+      console.log(todos);
+      var i=todos.length;
+      console.log(i);
+      while(i--)
+      {
+        if(todos[i].nodeName === "LI")
+        {
+          if(todos[i].children[2].classList.contains("completed"))
+          {
+          }
+          else{
+            todos[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+    function checkalluncompleteditem()
+    {
+      const todoUL = document.getElementById('UID');
+      const todos = todoUL.childNodes;
+      console.log(todos);
+      var i=todos.length;
+      console.log(i);
+      while(i--)
+      {
+        if(todos[i].nodeName === "LI")
+        {
+          if(todos[i].children[2].classList.contains("completed"))
+          {
+            todos[i].style.display = "none";
+          }
+        }
+      }
+    }
+    function daterange() {
+      var startDate = document.getElementById("startDate").value;
+      var endDate = document.getElementById("endDate").value;
+      const sDate=new Date(startDate);
+      const eDate=new Date(endDate);
+      console.log(startDate);
+      console.log(endDate);
+      console.log(sDate);
+      console.log(eDate);
+
+      const todoUL = document.getElementById('UID');
+      const todos = todoUL.childNodes;
+      console.log(todos);
+      var i=todos.length;
+      console.log(i);
+      while(i--)
+      {
+        if(todos[i].nodeName === "LI")
+        {
+            var date=new Date(todos[i].children[4].value);
+            if(date<sDate || date>eDate)
+            {
+              todos[i].remove();
+            }
+        }
+      }
+      toggledate();
+    }
+    function categoryfun()
+    {
+      var categ = document.getElementById("categoryfID").value;
+      const todoUL = document.getElementById('UID');
+      const todos = todoUL.childNodes;
+      console.log(todos);
+      var i=todos.length;
+      console.log(i);
+      while(i--)
+      {
+        if(todos[i].nodeName === "LI")
+        {
+            var c=todos[i].children[3].value;
+            console.log(c);
+            if(c !== categ)
+            {
+              todos[i].remove();
+            }
+        }
+      }
+      togglecategory();
+    }
+
+    function loggedIN()
+        {
+            alert("You are already registered and logged in .... First logout to register more or log in");
+            return;
+        }
   </script>
 
 </body>

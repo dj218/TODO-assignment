@@ -25,17 +25,17 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <!-- <li class="nav-item active">
                     <a class="nav-link" href="./index.html">Home</a>
-                </li>
+                </li> -->
                 <li class="nav-item">
-                    <a class="nav-link" href="./register.html">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Profile</a>
+                    <a class="nav-link" href="#" onclick="loggedIN()">Register</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="./todolist.html">ToDoList</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Profile</a>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -67,20 +67,26 @@
                     <div class="row mt-2">
                         <div class="col-md-6"><label class="labels">FirstName</label><input id="tf" type="text"
                                 class="form-control" placeholder="first name" value=""></div>
+                        <div id="error2"></div>
                         <div class="col-md-6"><label class="labels">Lastname</label><input id="tl" type="text"
                                 class="form-control" value="" placeholder="last name"></div>
+                        <div id="error3"></div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-md-12"><label class="labels">Address</label><input id="ta" type="text"
                                 class="form-control" placeholder="enter address" value=""></div>
+                        <div id="error4"></div>
                         <div class="col-md-12"><label class="labels">Gender</label><input id="tg" type="text"
                                 class="form-control" placeholder="gender" value=""></div>
+                        <div id="error5"></div>
                     </div>
                     <div class="row mt-2">
                         <div class="col-md-6"><label class="labels">Password</label><input id="tp" type="password"
                                 class="form-control" placeholder="password" value=""></div>
+                        <div id="error6"></div>
                         <div class="col-md-6"><label class="labels">Confirm Password</label><input id="tc"
                                 type="password" class="form-control" value="" placeholder="confirm password"></div>
+                        <div id="error7"></div>
                     </div>
                     <div class="mt-5 text-center"><button class="btn btn-primary profile-button" type="button"
                             onclick="resetthevalues()">Save Profile</button></div>
@@ -122,6 +128,7 @@
                                 <input type="checkbox" class="custom-control-input" id="inputPublic" value="false">
                             </div>
                         </div>
+                        <label class="labels">Please attach a photo here</label><input id="rd" type="file" />
                         <button><span onclick="newElement()" class="addBtn">Add</span></button>
                 </div>
                 </form>
@@ -134,7 +141,7 @@
         crossorigin="anonymous"></script>
 
     <script>
-        const personwewant = JSON.parse(sessionStorage.getItem("CurrentLoggedInPerson"));
+        const personwewant = JSON.parse(localStorage.getItem("CurrentLoggedInPerson"));
         if (personwewant == null) {
             window.location.href = "./register.html";
             alert("Please first login into our website to create your own ToDOList");
@@ -142,7 +149,7 @@
         document.getElementById("myspan").textContent = personwewant.firstName;
         document.getElementById("myspan2").textContent = personwewant.Email;
         window.addEventListener('DOMContentLoaded', () => {
-            const recentImageDataUrl = sessionStorage.getItem("CurrentLoggedInPersonPhoto");
+            const recentImageDataUrl = localStorage.getItem("CurrentLoggedInPersonPhoto");
 
             if (recentImageDataUrl) {
                 document.querySelector("#imageid").setAttribute("src", recentImageDataUrl);
@@ -150,12 +157,14 @@
 
         })
 
+
+
         // function changeImage()
         // {
         //     document.querySelector("#imageid").addEventListener("change", function () {
         //         const reader = new FileReader();
         //         reader.addEventListener("load", () => {
-        //             sessionStorage.setItem("CurrentLoggedInPersonPhoto", reader.result);
+        //             localStorage.setItem("CurrentLoggedInPersonPhoto", reader.result);
         //         });
 
         //         reader.readAsDataURL(this.files[0]);
@@ -171,6 +180,7 @@
         tp.value = personwewant.Password;
         tc.value = personwewant.Password;
 
+
         function newElement() {
             event.preventDefault();
 
@@ -180,11 +190,18 @@
             var rdate = document.getElementById("ReminderDate").value;
             var ipublic = $("#inputPublic").is(":checked") ? "true" : "false";
 
-            if (formValidation(title,category,date,rdate)) {
+            if (formValidation(title, category, date, rdate)) {
 
                 var finaltodo = personwewant.Email;
                 const obj = { Title: title, Category: category, Date: date, Rdate: rdate, Ipublic: ipublic, IsComplete: "false" };
+                document.querySelector("#rd").addEventListener("change", function () {
+                    const reader = new FileReader();
+                    reader.addEventListener("load", () => {
+                        obj.pict = reader.result;
+                    });
 
+                    reader.readAsDataURL(this.files[0]);
+                });
                 let result = "todolist" in personwewant;
 
 
@@ -197,8 +214,7 @@
                     const arr = personwewant.todolist;
                     var i = arr.length;
                     while (i--) {
-                        if (arr[i] && JSON.stringify(arr[i]) === JSON.stringify(obj))
-                        {
+                        if (arr[i] && JSON.stringify(arr[i]) === JSON.stringify(obj)) {
                             alert("This Item already exist in TODO list");
                             return false;
                         }
@@ -208,47 +224,42 @@
                 }
 
 
-                sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-                sessionStorage.setItem(finaltodo, JSON.stringify(personwewant));
-                const x = JSON.parse(sessionStorage.getItem(finaltodo));
+                localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+                localStorage.setItem(finaltodo, JSON.stringify(personwewant));
+                const x = JSON.parse(localStorage.getItem(finaltodo));
                 window.location.href = "./todolist.html";
             }
             return false;
         }
 
-        function formValidation(title,category,date,rdate){
-            var l1=title.length;
-            if(l1==0)
-            {
+        function formValidation(title, category, date, rdate) {
+            var l1 = title.length;
+            if (l1 == 0) {
                 alert("Title is not there");
                 return false;
             }
 
-            var l2=category.length;
-            if(l2==0)
-            {
+            var l2 = category.length;
+            if (l2 == 0) {
                 alert("Category is not there");
                 return false;
             }
 
-            var l3=date.length;
-            if(l3==0)
-            {
+            var l3 = date.length;
+            if (l3 == 0) {
                 alert("Completion Date is not there");
                 return false;
             }
 
-            var l4=rdate.length;
-            if(l4==0)
-            {
+            var l4 = rdate.length;
+            if (l4 == 0) {
                 alert("Reminder Date is not there");
                 return false;
             }
 
             var d1 = new Date(date);
             var d2 = new Date(rdate);
-            if(d1 < d2)
-            {
+            if (d1 < d2) {
                 alert("Reminder date is greater than Completion Date .... it should be less than Completion Date");
                 return false;
             }
@@ -262,10 +273,55 @@
 
             var firstname = document.getElementById("tf").value;
             var lastname = document.getElementById("tl").value;
-            var gender = document.getElementById("tg").value;
             var address = document.getElementById("ta").value;
             var password = document.getElementById("tp").value;
             var confirmpassword = document.getElementById("tc").value;
+            var gender = document.getElementById('tg').value;
+
+            if (firstname == "") {
+                document.getElementById('error2').innerHTML = "*Username must have alphabet characters only*";
+                tf.value = personwewant.firstName;
+                return false;
+            }
+            else {
+                document.getElementById('error2').innerHTML = "";
+            }
+            if (lastname == "") {
+                document.getElementById('error3').innerHTML = "*Username must have alphabet characters only*";
+                return false;
+            }
+            else {
+                document.getElementById('error3').innerHTML = "";
+            }
+            if (gender == "Male" || gender == "Female" || gender == "male" || gender == "female") {
+
+                document.getElementById('error5').innerHTML = "";
+            }
+            else {
+                document.getElementById('error5').innerHTML = "*Please enter a gender*";
+                return false;
+            }
+            if (address == "") {
+                document.getElementById('error4').innerHTML = "*Please enter a address*";
+                return false;
+            }
+            else {
+                document.getElementById('error4').innerHTML = "";
+            }
+            if (password == "") {
+                document.getElementById('error6').innerHTML = "*Please enter a password of 8 to 12 characters*";
+                return false;
+            }
+            else {
+                document.getElementById('error6').innerHTML = "";
+            }
+            if (confirmpassword == "") {
+                document.getElementById('error7').innerHTML = "*Please enter a password of 8 to 12 characters*";
+                return false;
+            }
+            else {
+                document.getElementById('error7').innerHTML = "";
+            }
 
             if (password == confirmpassword) {
                 personwewant.firstName = firstname;
@@ -273,14 +329,16 @@
                 personwewant.Gender = gender;
                 personwewant.Address = address;
                 personwewant.Password = password;
+                document.getElementById('error6').innerHTML = "";
             }
             else {
-                alert("password and confirmpassword do not match");
+                document.getElementById('error6').innerHTML = "*Password and re write passwords should be same*";
+                return false;
             }
 
             var email = personwewant.Email;
-            sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
-            sessionStorage.setItem(email, JSON.stringify(personwewant));
+            localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
+            localStorage.setItem(email, JSON.stringify(personwewant));
 
             document.getElementById("myspan").textContent = personwewant.firstName;
             document.getElementById("myspan2").textContent = personwewant.Email;
@@ -288,8 +346,13 @@
         }
         function logout() {
             alert("Thanks for using our website");
-            sessionStorage.removeItem("CurrentLoggedInPerson");
+            localStorage.removeItem("CurrentLoggedInPerson");
             window.location.href = "./register.html";
+        }
+
+        function loggedIN() {
+            alert("You are already registered and logged in .... First logout to register more or log in");
+            return;
         }
 
     </script>

@@ -119,9 +119,9 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <!-- <li class="nav-item active">
                     <a class="nav-link" href="./index.html">Home</a>
-                </li>
+                </li> -->
                 <li class="nav-item">
                     <a class="nav-link" href="#">Register</a>
                 </li>
@@ -160,8 +160,11 @@
                 <form name='registration'>
 
                     <input id="re" type="email" placeholder="Email" required />
+                    <div id="error1"></div>
                     <input id="rf" type="text" placeholder="FirstName" required />
+                    <div id="error2"></div>
                     <input id="rl" type="text" placeholder="LastName" required />
+                    <div id="error3"></div>
                     <label class="labels">Gender</label><br>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="Gender" id="rgm" value="Male">
@@ -171,11 +174,15 @@
                         <input class="form-check-input" type="radio" name="Gender" id="rgf" value="Female">
                         <label class="form-check-label" for="rgf">Female</label>
                     </div>
+                    <div id="error4"></div>
                     <input id="ra" type="text" placeholder="Address" required />
+                    <div id="error5"></div>
                     <input id="rp" type="password" placeholder="Password" required />
+                    <div id="error6"></div>
                     <input id="rrp" type="password" placeholder="Re write Password" required />
-                    <input id="rd" type="file" />
-                    <input type="submit" onclick="register()" value="Submit" />
+                    <div id="error7"></div>
+                    <label class="labels">Please provide a profile photo here</label><input id="rd" type="file" />
+                    <input type="submit" onclick="return register();" value="Submit" />
 
                 </form>
             </div>
@@ -249,33 +256,84 @@
             if (getSelectedValue != null) {
                 var gender = getSelectedValue.value;
             }
-            else {
-                alert("Plese select a gender first");
-            }
 
             const person = { Email: email, firstName: firstname, lastName: lastname, Gender: gender, Address: address, Password: password };
 
             document.querySelector("#rd").addEventListener("change", function () {
                 const reader = new FileReader();
                 reader.addEventListener("load", () => {
-                    sessionStorage.setItem("CurrentLoggedInPersonPhoto", reader.result);
+                    localStorage.setItem("CurrentLoggedInPersonPhoto", reader.result);
                 });
 
                 reader.readAsDataURL(this.files[0]);
             });
             console.log(person);
+            if(email=="")
+            {
+                document.getElementById('error1').innerHTML = "*Please enter a email ID*";
+                return false;
+            }
+            else{
+                document.getElementById('error1').innerHTML ="";
+            }
+            if(firstname=="")
+            {
+                document.getElementById('error2').innerHTML = "*Username must have alphabet characters only*";
+                return false;
+            }
+            else{
+                document.getElementById('error2').innerHTML ="";
+            }
+            if(lastname =="")
+                {
+                document.getElementById('error3').innerHTML = "*Username must have alphabet characters only*";
+                return false;
+            }
+            else{
+                document.getElementById('error3').innerHTML ="";
+            }
+            if(gender =="")
+            {
+                document.getElementById('error4').innerHTML = "*Please select a gender*";
+                return false;
+            }
+            else{
+                document.getElementById('error4').innerHTML ="";
+            }
+            if(address =="")
+            {
+                document.getElementById('error5').innerHTML = "*Please enter a address*";
+                return false;
+            }
+            else{
+                document.getElementById('error5').innerHTML ="";
+            }
+            if (password=="") {
+                document.getElementById('error6').innerHTML = "*Please enter a password of 8 to 12 characters*";
+                return false;
+            }
+            else{
+                document.getElementById('error6').innerHTML ="";
+            }
+            if (passwordRetype=="") {
+                document.getElementById('error7').innerHTML = "*Please enter a password of 8 to 12 characters*";
+                return false;
+            }
+            else{
+                document.getElementById('error7').innerHTML ="";
+            }
 
             if (password != passwordRetype) {
-                alert("Password don't match retype your Password.");
-                return;
+                document.getElementById('error6').innerHTML = "*Password and re write passwords should be same*";
+                return false;
             }
 
             if (ValidateEmail(email)) {
                 if (passwordValidation(password, 8, 12)) {
                     if (allLetter(firstname) && allLetter(lastname)) {
                         if (genderValidation(gender)) {
-                            if (sessionStorage.getItem(email) == null) {
-                                sessionStorage.setItem(email, JSON.stringify(person));
+                            if (localStorage.getItem(email) == null) {
+                                localStorage.setItem(email, JSON.stringify(person));
                                 window.location.reload()
                                 alert(email + "  Thanks for registration. \nTry to login Now");
                             }
@@ -293,21 +351,23 @@
         function passwordValidation(password, mx, my) {
             var password_len = password.length;
             if (password_len == 0 || password_len >= my || password_len < mx) {
-                alert("Password should not be empty / length be between " + mx + " to " + my);
-                password.focus();
+                document.getElementById('error6').innerHTML = "*Please enter a password of 8 to 12 characters*";
                 return false;
+
             }
+            document.getElementById('error6').innerHTML = "";
             return true;
         }
 
         function allLetter(name) {
             var letters = /^[A-Za-z]+$/;
             if (name.match(letters)) {
+                document.getElementById('error2').innerHTML = "";
                 return true;
             }
-            else {
-                alert('Username must have alphabet characters only');
-                name.focus();
+            else
+            {
+                document.getElementById('error2').innerHTML = "*Username must have alphabet characters only*";
                 return false;
             }
         }
@@ -315,11 +375,11 @@
         function ValidateEmail(email) {
             var mailformat = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
             if (email.match(mailformat)) {
+                document.getElementById('error1').innerHTML = "";
                 return true;
             }
             else {
-                alert("You have entered an invalid email address!");
-                email.focus();
+                document.getElementById('error1').innerHTML = "*Please enter a EmailID*";
                 return false;
             }
         }
@@ -327,11 +387,11 @@
         function genderValidation(gender) {
 
             if (gender == 'Male' || gender == 'male' || gender == 'Female' || gender == 'female') {
+                document.getElementById('error4').innerHTML = "";
                 return true;
             }
             else {
-                alert('Enter Male/Female');
-                gender.focus();
+                document.getElementById('error4').innerHTML = "*Please enter a Gender*";
                 return false;
             }
         }
@@ -342,9 +402,9 @@
             var email = document.getElementById("se").value;
             var password = document.getElementById("sp").value;
 
-            const person = JSON.parse(sessionStorage.getItem(email));
+            const person = JSON.parse(localStorage.getItem(email));
 
-            if (sessionStorage.getItem(email) == null) {
+            if (localStorage.getItem(email) == null) {
                 if (email == "") {
                     alert("Email required.");
                     return;
@@ -361,7 +421,7 @@
                 return;
             }
             else {
-                sessionStorage.setItem("CurrentLoggedInPerson", JSON.stringify(person));
+                localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(person));
                 alert(email + " yor are login Now \n welcome to our website.");
                 window.location.href = "./profile.html";
                 document.getElementById("se").value = "";
@@ -377,7 +437,7 @@
 
             var email = document.getElementById("fe").value;
 
-            if (sessionStorage.getItem(email) == null) {
+            if (localStorage.getItem(email) == null) {
                 if (email == "") {
                     alert("Email required.");
                     return;
@@ -391,7 +451,7 @@
         }
 
         // function loadprofile() {
-        //     const personwewant = JSON.parse(sessionStorage.getItem("CurrentLoggedInPerson"));
+        //     const personwewant = JSON.parse(localStorage.getItem("CurrentLoggedInPerson"));
         //     if (personwewant == null) {
         //         alert("Please first login into our website to create your own ToDOList");
         //     }
