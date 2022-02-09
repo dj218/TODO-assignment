@@ -119,14 +119,8 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <!-- <li class="nav-item active">
-                    <a class="nav-link" href="./index.html">Home</a>
-                </li> -->
                 <li class="nav-item">
                     <a class="nav-link" href="#">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./profile.html">Profile</a>
                 </li>
             </ul>
 
@@ -159,13 +153,13 @@
                 <h3>Register</h3>
                 <form name='registration'>
 
-                    <input id="re" type="email" placeholder="Email" required />
+                    <input id="re" type="email" placeholder="Email*" required />
                     <div id="error1"></div>
-                    <input id="rf" type="text" placeholder="FirstName" required />
+                    <input id="rf" type="text" placeholder="FirstName*" required />
                     <div id="error2"></div>
-                    <input id="rl" type="text" placeholder="LastName" required />
+                    <input id="rl" type="text" placeholder="LastName*" required />
                     <div id="error3"></div>
-                    <label class="labels">Gender</label><br>
+                    <label class="labels">Gender*</label><br>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="Gender" id="rgm" value="Male">
                         <label class="form-check-label" for="rgm">Male</label>
@@ -175,14 +169,15 @@
                         <label class="form-check-label" for="rgf">Female</label>
                     </div>
                     <div id="error4"></div>
-                    <input id="ra" type="text" placeholder="Address" required />
+                    <input id="ra" type="text" placeholder="Address*" required />
                     <div id="error5"></div>
-                    <input id="rp" type="password" placeholder="Password" required />
+                    <input id="rp" type="password" placeholder="Password*" required />
                     <div id="error6"></div>
-                    <input id="rrp" type="password" placeholder="Re write Password" required />
+                    <input id="rrp" type="password" placeholder="Re write Password*" required />
                     <div id="error7"></div>
-                    <label class="labels">Please provide a profile photo here</label><input id="rd" type="file" />
+                    <label class="labels">Please provide a profile photo here*</label><input id="rd" type="file" />
                     <input type="submit" onclick="return register();" value="Submit" />
+                    <div>"*" (Required)</div>
 
                 </form>
             </div>
@@ -201,7 +196,6 @@
         crossorigin="anonymous"></script>
 
     <script>
-
         var loginBox = document.getElementById("login");
         var regBox = document.getElementById("register");
         var forgetBox = document.getElementById("forgot");
@@ -316,7 +310,7 @@
                 document.getElementById('error6').innerHTML ="";
             }
             if (passwordRetype=="") {
-                document.getElementById('error7').innerHTML = "*Please enter a password of 8 to 12 characters*";
+                document.getElementById('error7').innerHTML = "*Re write password and password are not same*";
                 return false;
             }
             else{

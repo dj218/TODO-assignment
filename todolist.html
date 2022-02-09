@@ -176,9 +176,7 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="#" onclick="loggedIN()">Register</a>
-        </li>
+
         <li class="nav-item">
           <a class="nav-link" href="./profile.html">Profile</a>
         </li>
@@ -216,22 +214,45 @@
           <option value="category">Category</option>
           <option value="uncompleted">IsPending</option>
           <option value="completed">IsDone</option>
+          <option value="none" selected>None</option>
+        </select>
+        <select name="membership" id="FilterID2">
+          <option value="date">Date Range</option>
+          <option value="category">Category</option>
+          <option value="uncompleted">IsPending</option>
+          <option value="completed">IsDone</option>
+          <option value="none" selected>None</option>
+        </select>
+        <select name="membership" id="FilterID3">
+          <option value="date">Date Range</option>
+          <option value="category">Category</option>
+          <option value="uncompleted">IsPending</option>
+          <option value="completed">IsDone</option>
+          <option value="none" selected>None</option>
+        </select>
+        <select name="membership" id="FilterID4">
+          <option value="date">Date Range</option>
+          <option value="category">Category</option>
+          <option value="uncompleted">IsPending</option>
+          <option value="completed">IsDone</option>
+          <option value="none" selected>None</option>
         </select>
       <button type="submit" onclick="filterlist()" >Apply</button>
+      <button type="button" onClick="window.location.reload();">Reset</button>
       <div id="dateDIV">
         <label >Start Date</label><input type="date" id="startDate"/>
         <label >End Date</label><input type="date" id="endDate"/>
-        <button type="submit" onclick="daterange()">Filter</button>
       </div>
       <div id="categoryDIV">
         <select name="membership" class="form-control" id="categoryfID">
           <option value="Important">Important</option>
           <option value="Extracurricular">Extracurricular</option>
-          <option value="Work" selected>Work</option>
+          <option value="Work">Work</option>
           <option value="Personal">Personal</option>
+          <option value="none" selected>None</option>
         </select>
-        <button type="submit" onclick="categoryfun()">Filter</button>
       </div>
+      <button type="submit" onclick="daterange(); categoryfun();">Filter</button>
       <div id="ddiv">
         <label for="membershipd">Select multiple items to delete them and press this button</label>
         <button name="membershipd" type="submit" onclick="removemultiTask()">Delete</button>
@@ -245,30 +266,32 @@
 
   <script>
     const personwewant = JSON.parse(localStorage.getItem("CurrentLoggedInPerson"));
-    let result = "todolist" in personwewant;
-    if (result == false) {
-      alert("First Enter any todo item in profile page.... Thanks");
-    }
-    else
-      var arr = personwewant.todolist;
+    // let result = "todolist" in personwewant;
+    // if (result == false) {
+    //   alert("First Enter any todo item in profile page.... Thanks");
+    // }
+    // else
+    //   var arr = personwewant.todolist;
 
-    window.addEventListener('DOMContentLoaded', () => {
-            const recentImageDataUrl = personwewant.pict;
-            console.log(recentImageDataUrl);
-    })
 
-    arr.sort((a, b) => Date(b.Date) - new Date(a.Date));
+    // window.addEventListener('DOMContentLoaded', () => {
+    //         const recentImageDataUrl = personwewant.pict;
+    //         console.log(recentImageDataUrl);
+    // })
+
+    // arr.sort((a, b) =>   Date(b.Date) - new Date(a.Date));
 
     window.onload = loadTasks;                        // LOAD TASK
 
     function loadTasks() {
+
       let tasks = personwewant.todolist;
 
       tasks.forEach(task => {
         const list = document.querySelector('#UID');
         const li = document.createElement('li');
         li.innerHTML = `<input type="checkbox" onclick="takeThisTask(this)" class="checks">
-          <input type="checkbox" name="todo" onclick="taskComplete(this)" class="check" ${task.completed ? 'checked' : ''}>
+          <input type="checkbox" onclick="taskComplete(this)" class="check" ${task.completed ? 'checked' : ''}>
           <input type="text" value="${task.Title}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <input type="text" value="${task.Category}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <input type="date" value="${task.Date}" class="task ${task.completed ? 'completed' : ''}" onfocus="getCurrentTask(this)" onblur="editTask(this)">
@@ -375,7 +398,7 @@
       // create list item, add innerHTML and append to ul
       const li = document.createElement("li");
       li.innerHTML = `<input type="checkbox" onchange=="takeThisTask(this)" class="checks">
-          <input type="checkbox" name="todo" onclick="taskComplete(this)" class="check">
+          <input type="checkbox" onclick="taskComplete(this)" class="check">
           <input type="text" value="${task.value}" class="task" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <input type="text" value="${ctask.value}" class="task" onfocus="getCurrentTask(this)" onblur="editTask(this)">
           <input type="date" value="${dtask.value}" class="task" onfocus="getCurrentDate(this)" onblur="editDate(this)">
@@ -493,6 +516,76 @@
         case "uncompleted":
         checkalluncompleteditem();
           break;
+
+        case "none":
+        break;
+      }
+      var filter2 = document.getElementById("FilterID2").value;
+      console.log(filter);
+      switch (filter2) {
+        case "date":
+          toggledate();
+          break;
+
+        case "category":
+          togglecategory();
+          break;
+
+        case "completed":
+          checkallcompleteditem();
+          break;
+
+        case "uncompleted":
+        checkalluncompleteditem();
+          break;
+
+        case "none":
+        break;
+
+      }
+      var filter3 = document.getElementById("FilterID3").value;
+      console.log(filter3);
+      switch (filter3) {
+        case "date":
+          toggledate();
+          break;
+
+        case "category":
+          togglecategory();
+          break;
+
+        case "completed":
+          checkallcompleteditem();
+          break;
+
+        case "uncompleted":
+        checkalluncompleteditem();
+          break;
+
+        case "none":
+        break;
+      }
+      var filter4 = document.getElementById("FilterID4").value;
+      console.log(filter4);
+      switch (filter4) {
+        case "date":
+          toggledate();
+          break;
+
+        case "category":
+          togglecategory();
+          break;
+
+        case "completed":
+          checkallcompleteditem();
+          break;
+
+        case "uncompleted":
+        checkalluncompleteditem();
+          break;
+        
+        case "none":
+        break;
       }
       return false;
     }
@@ -591,6 +684,10 @@
     function categoryfun()
     {
       var categ = document.getElementById("categoryfID").value;
+      if(categ == "none")
+      {
+        return false;
+      }
       const todoUL = document.getElementById('UID');
       const todos = todoUL.childNodes;
       console.log(todos);

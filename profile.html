@@ -11,7 +11,11 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
     <title>Profile Page</title>
-
+    <style>
+        #RDIV{
+        display: none;
+      }
+    </style>
 </head>
 
 <body>
@@ -25,12 +29,6 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <!-- <li class="nav-item active">
-                    <a class="nav-link" href="./index.html">Home</a>
-                </li> -->
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="loggedIN()">Register</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="./todolist.html">ToDoList</a>
                 </li>
@@ -117,19 +115,23 @@
                                 <label>Date</label>
                                 <input type="date" id="inputDate" class="form-control" required>
                             </div>
-                            <div class="form-group col-md-6">
+                            <label for="accept">
+                                <input type="checkbox" id="accept" name="accept" value="yes" onchange="toggleRdate()"> IsReminder
+                            </label>
+                            <div class="form-group col-md-6" id="RDIV">
                                 <label>Reminder Date</label>
                                 <input type="date" id="ReminderDate" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="custom-control custom-checkbox">
-                                <label>Public</label>
+                                
                                 <input type="checkbox" class="custom-control-input" id="inputPublic" value="false">
+                                <label>Public</label>
                             </div>
                         </div>
                         <label class="labels">Please attach a photo here</label><input id="rd" type="file" />
-                        <button><span onclick="newElement()" class="addBtn">Add</span></button>
+                        <button type="button" onclick="newElement()" class="addBtn">Add</button>
                 </div>
                 </form>
             </div>
@@ -157,20 +159,19 @@
 
         })
 
+        function toggleRdate()
+        {
+            var myDiv = document.getElementById('RDIV');
+            var displaySetting = myDiv.style.display;
 
-
-        // function changeImage()
-        // {
-        //     document.querySelector("#imageid").addEventListener("change", function () {
-        //         const reader = new FileReader();
-        //         reader.addEventListener("load", () => {
-        //             localStorage.setItem("CurrentLoggedInPersonPhoto", reader.result);
-        //         });
-
-        //         reader.readAsDataURL(this.files[0]);
-        //         window.location.reload();
-        //     });
-        // }
+            if(displaySetting == 'block')
+            {
+                myDiv.style.display = 'none';
+            }
+            else {
+                myDiv.style.display = 'block';
+            }
+        }
 
         te.value = personwewant.Email;
         tf.value = personwewant.firstName;
@@ -190,7 +191,7 @@
             var rdate = document.getElementById("ReminderDate").value;
             var ipublic = $("#inputPublic").is(":checked") ? "true" : "false";
 
-            if (formValidation(title, category, date, rdate)) {
+            if (formValidation(title, category, date)) {
 
                 var finaltodo = personwewant.Email;
                 const obj = { Title: title, Category: category, Date: date, Rdate: rdate, Ipublic: ipublic, IsComplete: "false" };
@@ -248,12 +249,6 @@
             var l3 = date.length;
             if (l3 == 0) {
                 alert("Completion Date is not there");
-                return false;
-            }
-
-            var l4 = rdate.length;
-            if (l4 == 0) {
-                alert("Reminder Date is not there");
                 return false;
             }
 
@@ -324,18 +319,23 @@
             }
 
             if (password == confirmpassword) {
-                personwewant.firstName = firstname;
-                personwewant.lastName = lastname;
-                personwewant.Gender = gender;
-                personwewant.Address = address;
-                personwewant.Password = password;
-                document.getElementById('error6').innerHTML = "";
+                if (passwordValidation(password, 8, 12)) {
+                    if (allLetter(firstname) && allLetter(lastname)) {
+                        if (genderValidation(gender)) {
+                            personwewant.firstName = firstname;
+                            personwewant.lastName = lastname;
+                            personwewant.Gender = gender;
+                            personwewant.Address = address;
+                            personwewant.Password = password;
+                            document.getElementById('error7').innerHTML = "";
+                        }
+                        else {
+                            document.getElementById('error7').innerHTML = "*Password and re write passwords should be same*";
+                            return false;
+                        }
+                    }
+                }
             }
-            else {
-                document.getElementById('error6').innerHTML = "*Password and re write passwords should be same*";
-                return false;
-            }
-
             var email = personwewant.Email;
             localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
             localStorage.setItem(email, JSON.stringify(personwewant));
@@ -344,6 +344,42 @@
             document.getElementById("myspan2").textContent = personwewant.Email;
             console.log(personwewant);
         }
+
+        function passwordValidation(password, mx, my) {
+            var password_len = password.length;
+            if (password_len == 0 || password_len >= my || password_len < mx) {
+                document.getElementById('error6').innerHTML = "*Please enter a password of 8 to 12 characters*";
+                return false;
+
+            }
+            document.getElementById('error6').innerHTML = "";
+            return true;
+        }
+
+        function allLetter(name) {
+            var letters = /^[A-Za-z]+$/;
+            if (name.match(letters)) {
+                document.getElementById('error3').innerHTML = "";
+                return true;
+            }
+            else {
+                document.getElementById('error3').innerHTML = "*Username must have alphabet characters only*";
+                return false;
+            }
+        }
+
+        function genderValidation(gender) {
+
+            if (gender == 'Male' || gender == 'male' || gender == 'Female' || gender == 'female') {
+                document.getElementById('error4').innerHTML = "";
+                return true;
+            }
+            else {
+                document.getElementById('error4').innerHTML = "*Please enter a Gender*";
+                return false;
+            }
+        }
+
         function logout() {
             alert("Thanks for using our website");
             localStorage.removeItem("CurrentLoggedInPerson");
