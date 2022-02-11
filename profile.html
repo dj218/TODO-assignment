@@ -101,9 +101,9 @@
                     </div>
                     <h2 class="text-right">My To Do List</h2>
                     <form>
-                        <input id="myInput" type="text" class="form-control" placeholder="Title..." required>
+                        <input id="myInput" type="text" class="form-control" placeholder="Title*" required>
                         <!-- <input type="text" class="form-control" id="myCategory" placeholder="Category" required> -->
-                        <label for="membership">Category</label>
+                        <label for="membership">Category*</label>
                         <select name="membership" class="form-control" id="myCategory">
                             <option value="Important">Important</option>
                             <option value="Extracurricular">Extracurricular</option>
@@ -112,7 +112,7 @@
                         </select>
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label>Date</label>
+                                <label>Date*</label>
                                 <input type="date" id="inputDate" class="form-control" required>
                             </div>
                             <label for="accept">
@@ -329,12 +329,13 @@
                             personwewant.Password = password;
                             document.getElementById('error7').innerHTML = "";
                         }
-                        else {
-                            document.getElementById('error7').innerHTML = "*Password and re write passwords should be same*";
-                            return false;
+                        
                         }
                     }
                 }
+            else {
+            document.getElementById('error7').innerHTML = "*Password and re write passwords should be same*";
+            return false;
             }
             var email = personwewant.Email;
             localStorage.setItem("CurrentLoggedInPerson", JSON.stringify(personwewant));
